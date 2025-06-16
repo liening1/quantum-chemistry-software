@@ -5,7 +5,7 @@ except ImportError:
     print('PySCF is required for geometry optimization. Please install with: pip install pyscf')
     sys.exit(1)
 import numpy as np
-from molecule import load_molecule
+from .molecule import load_molecule
 from scipy.optimize import minimize
 
 

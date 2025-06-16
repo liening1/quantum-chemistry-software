@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Geometry Optimization Trajectory</title>
-    <script src="https://3dmol.org/build/3Dmol-min.js"></script>
+    <title>Molecular Trajectory Visualization</title>
+    <script src="https://3dmol.csb.pitt.edu/build/3Dmol-min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
@@ -54,21 +54,29 @@
         #frameSlider {
             width: 100%;
         }
+        #speedControl {
+            width: 50%;
+        }
         #frameCounter {
             margin-top: 10px;
             font-size: 16px;
             font-weight: bold;
         }
+        .notes {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Geometry Optimization Trajectory</h1>
+        <h1>Molecular Trajectory Visualization</h1>
         <div id="viewer"></div>
         <div id="frameCounter">Frame 1 / 38</div>
         
         <div class="slider-container">
-            <input type="range" min="0" max=37 value="0" class="slider" id="frameSlider">
+            <input type="range" min="0" max="37" value="0" class="slider" id="frameSlider">
         </div>
         
         <div class="controls">
@@ -76,6 +84,16 @@
             <button id="playBtn">Play</button>
             <button id="nextBtn">Next</button>
             <button id="resetBtn">Reset View</button>
+        </div>
+        
+        <div class="slider-container">
+            <label for="speedControl">Animation Speed:</label>
+            <input type="range" min="100" max="2000" value="500" class="slider" id="speedControl">
+            <span id="speedValue">500 ms</span>
+        </div>
+        
+        <div class="notes">
+            <p>Use left/right arrow keys to navigate frames, spacebar to play/pause</p>
         </div>
     </div>
 
@@ -86,7 +104,7 @@
             let currentFrame = 0;
             let isPlaying = false;
             let playInterval;
-            const frameDelay = 500;
+            let frameDelay = 500;
             
             // Store all XYZ frames
             const frames = [
@@ -128,6 +146,7 @@
                 "10\nStep 36\nO 0.000438 -2.474106 0.001119\nC 0.000006 -0.171227 0.000347\nC 2.428863 1.307099 -0.000304\nC -2.429429 1.306144 -0.000346\nH 2.535988 2.513288 -1.654614\nH 2.532136 2.521359 1.648254\nH 4.019225 0.029521 0.004498\nH -4.019285 0.027929 0.004476\nH -2.537065 2.512279 -1.654667\nH -2.533144 2.520364 1.648214\n",
                 "10\nStep 37\nO 0.000441 -2.474194 0.001127\nC 0.000004 -0.171172 0.000344\nC 2.428996 1.307196 -0.000302\nC -2.429564 1.306242 -0.000343\nH 2.536060 2.513250 -1.654686\nH 2.532228 2.521325 1.648331\nH 4.019149 0.029510 0.004487\nH -4.019208 0.027920 0.004466\nH -2.537133 2.512241 -1.654736\nH -2.533241 2.520331 1.648289\n",
                 "10\nStep 38\nO 0.000441 -2.474194 0.001127\nC 0.000004 -0.171172 0.000344\nC 2.428996 1.307196 -0.000302\nC -2.429564 1.306242 -0.000343\nH 2.536060 2.513250 -1.654686\nH 2.532228 2.521325 1.648331\nH 4.019149 0.029510 0.004487\nH -4.019208 0.027920 0.004466\nH -2.537133 2.512241 -1.654736\nH -2.533241 2.520331 1.648289\n"
+
             ];
             
             // Initialize the 3Dmol viewer
@@ -201,6 +220,19 @@
             
             $("#frameSlider").on("input", function() {
                 showFrame(parseInt($(this).val()));
+            });
+            
+            $("#speedControl").on("input", function() {
+                frameDelay = parseInt($(this).val());
+                $("#speedValue").text(`${frameDelay} ms`);
+                
+                // Reset the animation with the new speed if it's playing
+                if (isPlaying) {
+                    clearInterval(playInterval);
+                    playInterval = setInterval(function() {
+                        showFrame((currentFrame + 1) % frames.length);
+                    }, frameDelay);
+                }
             });
             
             // Keyboard controls

@@ -1,0 +1,51 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/molecules/index",
+    "pages/visualization/index",
+    "pages/optimization/index"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#4CAF50",
+    "navigationBarTitleText": "Quantum Chemistry",
+    "navigationBarTextStyle": "white"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#4CAF50",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "Home",
+        "iconPath": "images/home.png",
+        "selectedIconPath": "images/home-active.png"
+      },
+      {
+        "pagePath": "pages/molecules/index",
+        "text": "Molecules",
+        "iconPath": "images/molecules.png",
+        "selectedIconPath": "images/molecules-active.png"
+      },
+      {
+        "pagePath": "pages/visualization/index",
+        "text": "Visualize",
+        "iconPath": "images/visualize.png",
+        "selectedIconPath": "images/visualize-active.png"
+      }
+    ]
+  },
+  "networkTimeout": {
+    "request": 10000
+  },
+  "debug": false,
+  "permission": {
+    "scope.userLocation": {
+      "desc": "Your location will be used to provide relevant scientific information"
+    }
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

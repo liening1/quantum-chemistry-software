@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../my_hf_program:/app/my_hf_program
+      - ./api_server:/app/api_server
+    restart: unless-stopped
+    environment:
+      - DEBUG=1
+      - PYTHONPATH=/app
+  
+  web:
+    build:
+      context: ..
+      dockerfile: deployment/streamlit.Dockerfile
+    ports:
+      - "8501:8501"
+    volumes:
+      - ../my_hf_program:/app/my_hf_program
+      - ./streamlit:/app/streamlit
+    depends_on:
+      - api
+    environment:
+      - API_URL=http://api:8000

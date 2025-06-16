@@ -1,0 +1,61 @@
+<!--visualization.wxml-->
+<view class="container">
+  <view class="page-header">
+    <text class="page-title">Molecular Visualization</text>
+  </view>
+
+  <view class="content">
+    <view class="molecule-info" wx:if="{{currentMolecule}}">
+      <text class="molecule-name">{{currentMolecule.name}}</text>
+      <text class="molecule-formula">{{currentMolecule.formula}}</text>
+    </view>
+
+    <web-view wx:if="{{htmlUrl}}" src="{{htmlUrl}}"></web-view>
+    
+    <view wx:else class="empty-state">
+      <image class="empty-icon" src="/images/molecule.png" mode="aspectFit"></image>
+      <text>Select a molecule to visualize</text>
+    </view>
+
+    <view class="controls" wx:if="{{currentMolecule && isTrajectory}}">
+      <view class="frame-info">
+        <text>Frame {{currentFrame + 1}} of {{totalFrames}}</text>
+      </view>
+      
+      <slider 
+        value="{{currentFrame}}"
+        min="0"
+        max="{{totalFrames - 1}}"
+        step="1"
+        block-size="24"
+        activeColor="#4CAF50"
+        backgroundColor="#CCCCCC"
+        bindchange="onSliderChange"
+      />
+      
+      <view class="button-row">
+        <button class="control-button" bindtap="onPrevFrame">Previous</button>
+        <button class="control-button primary" bindtap="onTogglePlay">
+          {{isPlaying ? 'Pause' : 'Play'}}
+        </button>
+        <button class="control-button" bindtap="onNextFrame">Next</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="molecule-picker">
+    <text class="section-title">Select Molecule</text>
+    <scroll-view scroll-x="true" class="molecule-list">
+      <view 
+        wx:for="{{molecules}}" 
+        wx:key="id"
+        class="molecule-item {{currentMoleculeId === item.id ? 'selected' : ''}}"
+        bindtap="onSelectMolecule"
+        data-id="{{item.id}}"
+      >
+        <image src="{{item.thumbnail}}" mode="aspectFit" class="molecule-thumbnail"></image>
+        <text class="molecule-item-name">{{item.name}}</text>
+      </view>
+    </scroll-view>
+  </view>
+</view>
