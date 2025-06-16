@@ -7,7 +7,7 @@ except ImportError:
 import numpy as np
 from molecule import load_molecule
 from scipy.optimize import minimize
-import matplotlib.pyplot as plt
+
 
 def xyz_to_atomstr(xyz_file):
     atoms = []
@@ -24,6 +24,14 @@ def save_xyz(filename, symbols, coords, comment="Optimized geometry"):
         for sym, xyz in zip(symbols, coords):
             f.write(f"{sym} {xyz[0]:.6f} {xyz[1]:.6f} {xyz[2]:.6f}\n")
 
+def export_xyz_trajectory(filename, symbols, trajectory):
+    with open(filename, 'w') as f:
+        for i, coords in enumerate(trajectory):
+            f.write(f"{len(symbols)}\nStep {i+1}\n")
+            for sym, xyz in zip(symbols, coords):
+                f.write(f"{sym} {xyz[0]:.6f} {xyz[1]:.6f} {xyz[2]:.6f}\n")
+    print(f'XYZ trajectory saved as {filename}')
+
 def optimize_geometry(xyz_file, charge=0, basis='sto-3g', conv_tol=1e-4, max_steps=100):
     atomstr = xyz_to_atomstr(xyz_file)
     mol = gto.Mole()
@@ -34,6 +42,8 @@ def optimize_geometry(xyz_file, charge=0, basis='sto-3g', conv_tol=1e-4, max_ste
     n_atoms = mol.natm
     coords0 = mol.atom_coords().flatten()
     energies = []
+    trajectory = []
+    symbols = [mol.atom_symbol(i) for i in range(n_atoms)]
 
     def energy_and_grad(flat_coords):
         mol.set_geom_(flat_coords.reshape((n_atoms, 3)), unit='Bohr')
@@ -42,6 +52,7 @@ def optimize_geometry(xyz_file, charge=0, basis='sto-3g', conv_tol=1e-4, max_ste
         e = mf.e_tot
         g = grad.RHF(mf).kernel().flatten()
         energies.append(e)
+        trajectory.append(mol.atom_coords().copy())
         return e, g
 
     def fun(flat_coords):
@@ -54,7 +65,6 @@ def optimize_geometry(xyz_file, charge=0, basis='sto-3g', conv_tol=1e-4, max_ste
 
     result = minimize(fun, coords0, jac=jac, method='BFGS', tol=conv_tol, options={'maxiter': max_steps, 'disp': True})
     mol.set_geom_(result.x.reshape((n_atoms, 3)), unit='Bohr')
-    symbols = [mol.atom_symbol(i) for i in range(n_atoms)]
     coords = mol.atom_coords()
     save_xyz('optimized.xyz', symbols, coords, comment="Optimized geometry from PySCF")
     print("\nOptimized geometry saved to optimized.xyz")
@@ -66,17 +76,8 @@ def optimize_geometry(xyz_file, charge=0, basis='sto-3g', conv_tol=1e-4, max_ste
         print("Geometry optimization converged.")
     else:
         print("Geometry optimization did not converge.")
-    # Plot optimization path
-    plt.figure(figsize=(6,4))
-    plt.plot(range(1, len(energies)+1), energies, marker='o')
-    plt.xlabel('Step')
-    plt.ylabel('Total Energy (a.u.)')
-    plt.title('Geometry Optimization Path')
-    plt.grid(True)
-    plt.tight_layout()
-    plt.savefig('geometry_optimization_path.png')
-    print('Optimization path plot saved as geometry_optimization_path.png')
-    # plt.show()  # Uncomment if running locally with GUI
+    # Export XYZ trajectory for visualization
+    export_xyz_trajectory('geometry_trajectory.xyz', symbols, trajectory)
 
 if __name__ == "__main__":
     xyz_file = sys.argv[1] if len(sys.argv) > 1 else 'h2.xyz'
